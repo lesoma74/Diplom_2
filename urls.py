@@ -1,0 +1,7 @@
+BASE_URL = "https://stellarburgers.nomoreparties.site/api/auth"
+REGISTER_URL = "https://stellarburgers.nomoreparties.site/api/auth/register"
+LOGIN_URL = "https://stellarburgers.nomoreparties.site/api/auth/login"
+LOGOUT_URL = "https://stellarburgers.nomoreparties.site/api/auth/logout"
+USER_URL = "https://stellarburgers.nomoreparties.site/api/auth/user"
+TOKEN_URL = "https://stellarburgers.nomoreparties.site/api/auth/token"
+ORDERS_URL = "https://stellarburgers.nomoreparties.site/api/orders"
