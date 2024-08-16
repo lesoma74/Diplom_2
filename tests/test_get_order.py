@@ -2,6 +2,7 @@ import allure
 import requests
 from project_setup import TestSetup
 from urls import ORDERS_URL
+from messages import UNAUTHORIZED_ACCESS
 
 class TestOrderRetrieval:
 
@@ -26,6 +27,8 @@ class TestOrderRetrieval:
         }
         order_response = requests.post(ORDERS_URL, json=order_payload, headers=headers)
         assert order_response.status_code == 200, f"Unexpected status code {order_response.status_code}. Response: {order_response.json()}"
+        # Проверяем наличие успешного ответа
+        assert order_response.json().get("success") is True
 
         # Получаем список заказов
         orders_response = requests.get(ORDERS_URL, headers=headers)
@@ -48,8 +51,10 @@ class TestOrderRetrieval:
         }
         order_response = requests.post(ORDERS_URL, json=order_payload)
         assert order_response.status_code == 200, f"Unexpected status code {order_response.status_code}. Response: {order_response.json()}"
+        # Проверяем наличие успешного ответа
+        assert order_response.json().get("success") is True
 
         # Попытка получить список заказов без авторизации
         orders_response = requests.get(ORDERS_URL)
         assert orders_response.status_code == 401, f"Unexpected status code {orders_response.status_code}. Response: {orders_response.json()}"
-        assert orders_response.json() == {"success": False, "message": "You should be authorised"}, "Unexpected response for unauthorized access"
+        assert orders_response.json() == {"success": False, "message": UNAUTHORIZED_ACCESS}, "Unexpected response for unauthorized access"

@@ -2,6 +2,8 @@ import pytest
 import allure
 from project_setup import TestSetup
 from utils import generate_random_email, generate_random_password
+from messages import LOGIN_FAILED_INVALID_CREDENTIALS
+
 
 @pytest.mark.usefixtures("setup_teardown")
 class TestUserLogin:
@@ -21,6 +23,7 @@ class TestUserLogin:
             response = self.setup.login_user(self.setup.created_user['email'], self.setup.created_user['password'])
             assert response.status_code == 200
             assert response.json().get("success") is True
+            assert "accessToken" in response.json()  # Проверка наличия токена в ответе
 
     @allure.title("Логин с неправильными учетными данными")
     @allure.description("Тест проверяет попытку логина с неправильными учетными данными. Ожидается ошибка 401.")
@@ -32,4 +35,5 @@ class TestUserLogin:
         with allure.step(f"Попытка логина с email={email} и password={password}"):
             response = self.setup.login_user(email, password)
             assert response.status_code == 401
-            assert response.json().get("message") == "email or password are incorrect"
+            assert response.json().get("message") == LOGIN_FAILED_INVALID_CREDENTIALS
+

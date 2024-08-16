@@ -3,6 +3,13 @@ import requests
 import allure
 from project_setup import TestSetup
 from utils import generate_random_email, generate_random_password, generate_random_name
+from messages import (
+    USER_ALREADY_EXISTS,
+    REGISTRATION_FAILED,
+    UNEXPECTED_STATUS_CODE,
+    MISSING_FIELDS_MESSAGE,
+    USER_REGISTRATION_NOT_SUCCESSFUL,
+)
 
 @pytest.mark.usefixtures("setup_teardown")
 class TestUserRegistration:
@@ -15,8 +22,9 @@ class TestUserRegistration:
     def test_create_unique_user(self):
         with allure.step("Регистрация нового пользователя"):
             response = self.setup.register_new_user()
-            assert response.status_code == 200, f"Unexpected status code {response.status_code}. Response: {response.json()}"
-            assert response.json()["success"] is True, "User registration was not successful"
+            assert response.status_code == 200, UNEXPECTED_STATUS_CODE.format(status_code=response.status_code,
+                                                                              response=response.json())
+            assert response.json()["success"] is True, USER_REGISTRATION_NOT_SUCCESSFUL
 
     @allure.title("Создание существующего пользователя")
     @allure.description("Тест проверяет попытку создать пользователя с уже существующим email.")
@@ -31,9 +39,10 @@ class TestUserRegistration:
 
         with allure.step("Попытка создания пользователя с тем же email"):
             response = self.setup.register_new_user(email=email, password=password, name=name)
-            assert response.status_code == 403, f"Unexpected status code {response.status_code}. Response: {response.json()}"
-            assert response.json()["success"] is False, "User registration should have failed"
-            assert response.json()["message"] == "User already exists", "Unexpected message for existing user"
+            assert response.status_code == 403, UNEXPECTED_STATUS_CODE.format(status_code=response.status_code,
+                                                                              response=response.json())
+            assert response.json()["success"] is False, REGISTRATION_FAILED
+            assert response.json()["message"] == USER_ALREADY_EXISTS, f"Unexpected message: {response.json()['message']}"
 
     @allure.title("Создание пользователя с отсутствующим полем")
     @allure.description("Тест проверяет создание пользователя с отсутствующими обязательными полями.")
@@ -46,13 +55,10 @@ class TestUserRegistration:
 
         with allure.step("Попытка регистрации пользователя с отсутствующим полем"):
             response = requests.post(f"{self.setup.base_url}/auth/register", json=incomplete_user)
-            assert response.status_code == 403, f"Unexpected status code {response.status_code}. Response: {response.json()}"
-            assert response.json()["success"] is False, "User registration should have failed"
-            assert response.json()["message"] == "Email, password and name are required fields", "Unexpected message for missing fields"
-
-
-
-
+            assert response.status_code == 403, UNEXPECTED_STATUS_CODE.format(status_code=response.status_code,
+                                                                              response=response.json())
+            assert response.json()["success"] is False, REGISTRATION_FAILED
+            assert response.json()["message"] == MISSING_FIELDS_MESSAGE, f"Unexpected message: {response.json()['message']}"
 
 
 
